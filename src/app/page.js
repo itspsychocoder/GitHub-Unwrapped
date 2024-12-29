@@ -7,6 +7,7 @@ export default function Home() {
   const [username, setUsername] = useState("");
   const [chartData, setChartData] = useState(null);
   const [longestStreak, setLongestStreak] = useState(0);
+  const [totalContributions, setTotalContributions] = useState(0);
   const [projects, setProjects] = useState([]);
   const [topProjects, setTopProjects] = useState([]);
   const [userData, setUserData] = useState({});
@@ -91,6 +92,7 @@ export default function Home() {
     console.log(data); // Debugging: Check the structure of the data
   
     const weeksData = data.data.user.contributionsCollection.contributionCalendar.weeks;
+  
 
       // Format the data to match the structure expected for D3.js
   const xLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']; // Days of the week
@@ -113,6 +115,7 @@ export default function Home() {
     // Calculate the longest streak
     const longestStreak = getLongestStreak(weeksData);
     console.log(`Longest streak for ${username}: ${longestStreak} days`);
+
 
     const rank = assignBadge(data.data.user.contributionsCollection.totalCommitContributions, longestStreak, topProjects);
     setRank(rank);
@@ -261,6 +264,7 @@ export default function Home() {
     console.log(data.data);
     const totalCommits = (data.data.repository?.mainBranch?.history?.totalCount || 0) +
     (data.data.repository?.masterBranch?.history?.totalCount || 0);
+   
 
     return totalCommits;
   }
@@ -393,6 +397,7 @@ export default function Home() {
     );
 
     console.log(response.data);
+    setTotalContributions(response.data.data.user.contributionsCollection.totalCommitContributions);
   };
 
   const getRateLimitStatus = async () => {
@@ -430,8 +435,8 @@ export default function Home() {
    <div className="flex items-center justify-center min-h-screen ">
   <div className="backdrop-blur-md bg-white/10 border border-white/20 shadow-lg rounded-lg p-6 w-96 
               ring-5 ring-pink-500/40 hover:ring-pink-500/70 transition duration-300">
-    <h2 className="text-xl font-bold text-white mb-4">Top Heading</h2>
-    <p className="text-white/80 mb-6">This is a little description that provides more information about the card content.</p>
+    <h2 className="text-xl font-bold text-white mb-4">Your GitHub Year in Review</h2>
+    <p className="text-white/80 mb-6">Enter your GitHub username and unlock a personalized summary of your coding journey. Explore your total contributions, longest streaks, top projects, favorite languages, and much more, all wrapped up just for you.</p>
     <div className="flex items-center border border-white/40 rounded-md overflow-hidden">
       <input
         type="text"
@@ -447,7 +452,7 @@ export default function Home() {
         fetchContributionsAndCalculateStreak(username);
       }} className="btn btn-secondary rounded-none">Submit</button>
     </div>
-    <button onClick={getRateLimitStatus} className="btn btn-primary">Get Rate Limit</button>
+    {/* <button onClick={getRateLimitStatus} className="btn btn-primary">Get Rate Limit</button> */}
     <a href="#" className="block mt-4 text-blue-300 hover:underline text-center">Click here for more</a>
   </div>
 </div>
@@ -455,7 +460,7 @@ export default function Home() {
 
 
  <div className="flex justify-center items-center">
- <Card username={username} rank={rank} name={userData?.name} avatar_url={userData?.avatar_url} streak={longestStreak} projects={topProjects}
+ <Card totalContributions={totalContributions} username={username} rank={rank} name={userData?.name} avatar_url={userData?.avatar_url} streak={longestStreak} projects={topProjects}
   languages={languages} followers={userData?.followers} following={userData?.following}>
 
     

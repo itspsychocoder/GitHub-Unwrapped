@@ -1,14 +1,38 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import "@/css/card.css"
-function Card({followers, following,children, username, name, avatar_url, rank, streak, projects, languages}) {
+import html2canvas from 'html2canvas-pro';
+
+function Card({totalContributions, followers, following,children, username, name, avatar_url, rank, streak, projects, languages}) {
+  const cardRef = useRef();
 const badge = {
   "Platinum": "🌟",
   "Gold": "🥇",
   "Silver": "🥈",
   "Bronze": "🥉"
 }
+
+const downloadCardAsImage = async () => {
+  if (cardRef.current) {
+    const canvas = await html2canvas(cardRef.current,  {
+      useCORS: true,      // Allow cross-origin images and styles
+      allowTaint: false,
+      backgroundColor: "#1a103d"
+    });
+    const link = document.createElement('a');
+    link.download = 'card.png'; // File name
+    link.href = canvas.toDataURL('image/png'); // Convert canvas to data URL
+    link.click(); // Trigger download
+  }
+};
   return (
-    <div className="glass-card">
+   <div className='flex flex-col'>
+
+   <div className='flex justify-between items-center my-5'>
+    <h1 className='text-2xl font-bold'>Your Statistics for 2024</h1>
+   <button className='btn btn-sm btn-primary' onClick={downloadCardAsImage}>
+  Download</button>
+   </div>
+    <div ref={cardRef} className="glass-card">
   <div className="card-top">
     <div className="user-info">
       <img src={avatar_url} alt="User Avatar" className="avatar" />
@@ -32,7 +56,7 @@ const badge = {
     <div className="stats-container">
   <div className="stat">
     <h2>Repos</h2>
-    <p className='repoText'>(in 2024)</p>
+    <p className='repoText'>(2024)</p>
     <p className='statNumber' id="repos-count">{projects.length}</p>
   </div>
   <div className="stat">
@@ -48,6 +72,8 @@ const badge = {
     <p className='statNumber' id="following-count">{following}</p>
   </div>
 </div>
+
+<h1 className='text-center font-bold text-3xl'>Total Contributions: {totalContributions}</h1>
 
 
    <div className='flex justify-evenly'>
@@ -78,10 +104,14 @@ const badge = {
    
    </div>
 
+
+
    {children}
   </div>
 
   <p className='text-center my-5 font-bold text-white'>GitHub Unwrapped - Made by Psycho Coder</p>
+</div>
+
 </div>
 
   )
