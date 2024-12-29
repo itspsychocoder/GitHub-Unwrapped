@@ -1,0 +1,159 @@
+
+  
+  .glass-card {
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    width: 650px;
+    overflow: hidden;
+  }
+  
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+  }
+  
+  .username {
+    font-size: 1.2rem;
+    color: #fff;
+  }
+  
+  .rank-info {
+    text-align: center;
+  }
+  
+  .rank-badge {
+    font-size: 2rem;
+  }
+  
+  .rank-text {
+    font-size: 0.9rem;
+    color: #fff;
+  }
+  
+  .card-bottom {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    gap: 20px;
+  }
+  
+  .stats,
+  .projects,
+  .languages {
+    color: #fff;
+  }
+  
+  h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.8);
+  }
+  
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+  }
+  
+  li {
+    font-size: 0.9rem;
+    color: #fff;
+  }
+  
+
+  h2 {
+    font-size: 24px;
+    font-weight: bold;
+  }
+/* Main container */
+.stats-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 20px; /* Add spacing between inner divs */
+  border-radius: 16px;
+  padding: 20px;
+ 
+  width: 80%;
+  margin: 20px auto;
+}
+
+/* Individual stat box */
+.stat {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.2); /* Separate background for each stat */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 15px 20px;
+  flex: 1; /* Equal width for each stat box */
+}
+
+.stat h2 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  color: #ffffff;
+}
+
+.stat p {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0;
+  color: #ffffff;
+}
+/* Container for the streak */
+.streak-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 69, 0, 0.2); /* Light orange-red background for streak */
+  border: 1px solid rgba(255, 69, 0, 0.5);
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 10px 20px;
+  margin: 20px auto;
+  width: 80%; /* Adjust width as needed */
+  color: #ffffff; /* White text */
+  font-family: 'Arial', sans-serif;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* Fire icon style */
+.fire-icon {
+  font-size: 2rem; /* Larger size for the fire icon */
+}
+
+/* Streak number style */
+.streak-number {
+  font-size: 1.8rem; /* Highlight the number */
+}
+.repoText {
+  font-size: 14px !important;
+}
+
+
+.statNumber {
+  font-size: 30px !important;
+}

@@ -2,10 +2,17 @@
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";// Import required scales
 import * as d3 from 'd3';
-
+import Card from "@/components/Card"
 export default function Home() {
   const [username, setUsername] = useState("");
   const [chartData, setChartData] = useState(null);
+  const [longestStreak, setLongestStreak] = useState(0);
+  const [projects, setProjects] = useState([]);
+  const [topProjects, setTopProjects] = useState([]);
+  const [userData, setUserData] = useState({});
+  const [languages, setLanguages] = useState([]);
+  const [rank, setRank] = useState('');
+
   const svgRef = useRef();
 
   // find streak by giving all year data
@@ -46,7 +53,7 @@ export default function Home() {
   
     // Check the last streak after the loop
     longestStreak = Math.max(longestStreak, currentStreak);
-  
+    setLongestStreak(longestStreak)
     return longestStreak;
   };
 
@@ -106,6 +113,9 @@ export default function Home() {
     // Calculate the longest streak
     const longestStreak = getLongestStreak(weeksData);
     console.log(`Longest streak for ${username}: ${longestStreak} days`);
+
+    const rank = assignBadge(data.data.user.contributionsCollection.totalCommitContributions, longestStreak, topProjects);
+    setRank(rank);
     return {contributionData:weeksData, longestStreak};
   };
 
@@ -120,8 +130,8 @@ export default function Home() {
 
   const createD3Heatmap = (heatmapData, xLabels, yLabels) => {
     const svgWidth = 1000; // Width of the SVG container
-    const svgHeight = 300; // Height of the SVG container
-    const cellSize = 15; // Size of each cell (day)
+    const svgHeight = 100; // Height of the SVG container
+    const cellSize = 10; // Size of each cell (day)
     const margin = { top: 40, right: 20, bottom: 40, left: 40 }; // Adjusted margins
   
     const width = svgWidth - margin.left - margin.right;
@@ -191,7 +201,7 @@ export default function Home() {
       .data(yLabelsWithPos)
       .enter()
       .append('text')
-      .attr('x', -30) // Positioning to the left of the heatmap
+      .attr('x', -20) // Positioning to the left of the heatmap
       .attr('y', d => d.y)
       .attr('text-anchor', 'middle')
       .attr('font-size', 12)
@@ -201,7 +211,18 @@ export default function Home() {
   
   
   
-  
+  function assignBadge(totalContributions, longestStreak, topProjects) {
+    if (totalContributions >= 2000 || longestStreak >= 365) {
+        return 'Platinum';
+    } else if (totalContributions >= 1000 || longestStreak >= 100) {
+        return 'Gold';
+    } else if (totalContributions >= 500 || longestStreak >= 30) {
+        return 'Silver';
+    } else {
+        return 'Bronze';
+    }
+}
+
 
   // fetch commits of specific repo
   async function fetchCommits(owner, repoName) {
@@ -285,8 +306,10 @@ export default function Home() {
  
   
     console.log("Top Languages:", topLanguages);
+    setLanguages(topLanguages);
 
     const topProjects = await getTopProjects(repos);
+    setTopProjects(topProjects);
     console.log("Top Projects:", topProjects);
   }
   
@@ -342,7 +365,7 @@ export default function Home() {
       hasNextPage = data.data.user.repositories.pageInfo.hasNextPage;
       endCursor = data.data.user.repositories.pageInfo.endCursor;
     }
-  
+    setProjects(allRepos);
     return allRepos;
   }
 
@@ -387,6 +410,18 @@ export default function Home() {
     console.log('Remaining requests:', remainingRequests);
     return remainingRequests;
   };
+
+  const fetchUserInfo = async () => {
+    const response = await fetch(`https://api.github.com/users/${username}`, {
+      headers: {
+        Authorization: `token ${process.env.NEXT_PUBLIC_GITHUB_TOKEN}`,
+      },
+    });
+    const data = await response.json();
+    setUserData(data);
+    return data;
+  };
+  
   
   
  
@@ -406,8 +441,9 @@ export default function Home() {
         className="flex-grow px-4 py-2 bg-transparent text-white placeholder-white/60 outline-none"
       />
       <button onClick={()=> {
+        fetchUserInfo();
         fetchGitHubData();
-        // calculateTopLanguages();
+        calculateTopLanguages();
         fetchContributionsAndCalculateStreak(username);
       }} className="btn btn-secondary rounded-none">Submit</button>
     </div>
@@ -416,10 +452,20 @@ export default function Home() {
   </div>
 </div>
 
-<div className="flex justify-center items-center w-full">
+
+
+ <div className="flex justify-center items-center">
+ <Card username={username} rank={rank} name={userData?.name} avatar_url={userData?.avatar_url} streak={longestStreak} projects={topProjects}
+  languages={languages} followers={userData?.followers} following={userData?.following}>
+
+    
+<div className="m-5 flex justify-center items-center w-full">
 <svg id="heatmap"></svg>
   </div>
 
+  </Card>
+
+ </div>
     </div>
   )
 }
