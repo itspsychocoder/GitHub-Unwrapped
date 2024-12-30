@@ -175,9 +175,13 @@ export default function Home() {
     );
 
     const cellMargin = 2;
+  //   const colorScale2 = d3.scaleThreshold()
+  // .domain([0, 1, 5, 10, 20]) // Define contribution thresholds
+  // .range(['#1a103d', '#3b275e', '#5c3e8b', '#8b6bc3', '#b8a3eb']);
+
     const colorScale2 = d3.scaleThreshold()
   .domain([0, 1, 5, 10, 20]) // Define contribution thresholds
-  .range(['#1a103d', '#3b275e', '#5c3e8b', '#8b6bc3', '#b8a3eb']);
+  .range(['#0000ffff', '#0000ffaa', '#0000ff88', '#0000ff55', '#0000ff22']);
 
     // Append squares (cells) for the heatmap
     svg.selectAll('rect')
