@@ -5,9 +5,11 @@ import * as d3 from 'd3';
 import Card from "@/components/Card"
 import { SessionProvider, signIn, signOut, useSession } from "next-auth/react";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/pages/api/auth/[...nextauth]";
-export default async function Home() {
-  const session = await getServerSession(authOptions);
+import { options } from "@/app/api/auth/[...nextauth]/options";
+
+export default function Home() {
+  const [session, setSession] = useState(null);
+
   const [username, setUsername] = useState("");
   const [chartData, setChartData] = useState(null);
   const [longestStreak, setLongestStreak] = useState(0);
@@ -18,10 +20,16 @@ export default async function Home() {
   const [languages, setLanguages] = useState([]);
   const [rank, setRank] = useState('');
 
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [isAnalysis, setIsAnalysis] = useState(false);
+
+ 
   const svgRef = useRef();
 
   // find streak by giving all year data
   const getLongestStreak = (contributionData) => {
+    setMessage('Calculating longest streak...');
     const allContributions = [];
   
     // Collect all the days with contributions (where contributionCount > 0)
@@ -63,6 +71,7 @@ export default async function Home() {
   };
 
   const fetchContributionsAndCalculateStreak = async (username) => {
+    setMessage('Fetching contribution data...');
     const query = `
       query {
         user(login: "${username}") {
@@ -83,7 +92,7 @@ export default async function Home() {
     const response = await fetch('https://api.github.com/graphql', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_GITHUB_TOKEN}`,
+        'Authorization': `Bearer ${session?.accessToken===undefined?process.env.NEXT_PUBLIC_GITHUB_TOKEN:session.accessToken}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ query })
@@ -112,7 +121,7 @@ export default async function Home() {
       heatmapData[weekIndex][dayIndex] = contributionCount; // Set the value of commits for that day
     });
   });
-
+  setIsAnalysis(false);
   // Now that we have the data in the format for D3, let's create the heatmap
   createD3Heatmap(heatmapData, xLabels, yLabels);
   
@@ -136,6 +145,7 @@ export default async function Home() {
 
 
   const createD3Heatmap = (heatmapData, xLabels, yLabels) => {
+    
     const svgWidth = 1000; // Width of the SVG container
     const svgHeight = 100; // Height of the SVG container
     const cellSize = 10; // Size of each cell (day)
@@ -258,7 +268,7 @@ export default async function Home() {
     const response = await fetch('https://api.github.com/graphql', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_GITHUB_TOKEN}`,
+        'Authorization': `Bearer ${session?.accessToken===undefined?process.env.NEXT_PUBLIC_GITHUB_TOKEN:session.accessToken}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({ query })
@@ -275,6 +285,7 @@ export default async function Home() {
   
 
   async function getTopProjects(repos) {
+    setMessage('Calculating top projects...');
 
     let repoCommitCounts = [];
 
@@ -323,6 +334,7 @@ export default async function Home() {
   
 
   async function fetchRepositories() {
+    setMessage('Fetching repositories...');
     let allRepos = [];
     let hasNextPage = true;
     let endCursor = null;
@@ -353,7 +365,7 @@ export default async function Home() {
       const response = await fetch("https://api.github.com/graphql", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_GITHUB_TOKEN}`,
+          Authorization: `Bearer ${session?.accessToken===undefined?process.env.NEXT_PUBLIC_GITHUB_TOKEN:session.accessToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ query }),
@@ -378,7 +390,8 @@ export default async function Home() {
   }
 
   const fetchGitHubData = async () => {
-    console.log(process.env.NEXT_PUBLIC_GITHUB_TOKEN)
+    setMessage(`Fetching GitHub data for ${username}...`);
+    console.log(session?.accessToken===undefined?process.env.NEXT_PUBLIC_GITHUB_TOKEN:session.accessToken)
     const query = `
     query {
       user(login: "${username}") {
@@ -394,7 +407,7 @@ export default async function Home() {
       { query },
       {
         headers: {
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_GITHUB_TOKEN}`,
+          Authorization: `Bearer ${session?.accessToken===undefined?process.env.NEXT_PUBLIC_GITHUB_TOKEN:session.accessToken}`,
           "Content-Type": "application/json",
         },
       }
@@ -408,7 +421,7 @@ export default async function Home() {
     const response = await fetch('https://api.github.com/rate_limit', {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_GITHUB_TOKEN}`, // Replace with your token if needed
+        'Authorization': `Bearer ${session?.accessToken===undefined?process.env.NEXT_PUBLIC_GITHUB_TOKEN:session.accessToken}`, // Replace with your token if needed
       },
     });
   
@@ -423,19 +436,43 @@ export default async function Home() {
   const fetchUserInfo = async () => {
     const response = await fetch(`https://api.github.com/users/${username}`, {
       headers: {
-        Authorization: `token ${process.env.NEXT_PUBLIC_GITHUB_TOKEN}`,
+        Authorization: `token ${session?.accessToken===undefined?process.env.NEXT_PUBLIC_GITHUB_TOKEN:session.accessToken}`,
       },
     });
     const data = await response.json();
     setUserData(data);
     return data;
   };
-  
-
+  const fetchSession = async () => {
+ 
+    const response = await fetch("/api/auth/session");
+    if (response.ok) {
+      const sessionData = await response.json();
+      setSession(sessionData);
+      setUsername(sessionData.user.username);
+    } else {
+      setSession(null);
+    }
+   
+  };
   useEffect(() => {
-    console.log(session)
-  }, [])
-  
+    
+
+    fetchSession();
+  }, []);
+
+
+  const runAnalysis = async () => {
+    setLoading(true);
+    setIsAnalysis(true);
+    await fetchUserInfo();
+    await fetchGitHubData();
+    await calculateTopLanguages();
+    await fetchContributionsAndCalculateStreak(username);
+    setMessage('');
+    setIsAnalysis(false);
+  }
+
   
   
  
@@ -451,18 +488,13 @@ export default async function Home() {
         type="text"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
-        placeholder="Enter username"
+        placeholder={"Enter username"}
         className="flex-grow px-4 py-2 bg-transparent text-white placeholder-white/60 outline-none"
       />
-      <button onClick={()=> {
-        fetchUserInfo();
-        fetchGitHubData();
-        calculateTopLanguages();
-        fetchContributionsAndCalculateStreak(username);
-      }} className="btn btn-secondary rounded-none">Submit</button>
+      <button onClick={runAnalysis} className="btn btn-secondary rounded-none">Submit</button>
     </div>
     {/* <button onClick={getRateLimitStatus} className="btn btn-primary">Get Rate Limit</button> */}
-    <p>User: {session?.user?.email}</p>
+  
     {session ? (
         <div>
           <p>Welcome, {session.user.name || session.user.email}!</p>
@@ -472,25 +504,92 @@ export default async function Home() {
         <button onClick={() => signIn("github", { callbackUrl: "/profile" })}>Sign In with GitHub</button>
       )}
 
-{!session?(
-  <p>You are not signed in.</p>
-  ):null
-  }
+
   </div>
 </div>
 
 
+{
+    isAnalysis?(
+      <p className="text-center my-5 text-3xl font-bold">
+        {message}
+      </p>
+    ):null
+
+  }
 
  <div className="flex justify-center items-center">
- <Card totalContributions={totalContributions} username={username} rank={rank} name={userData?.name} avatar_url={userData?.avatar_url} streak={longestStreak} projects={topProjects}
-  languages={languages} followers={userData?.followers} following={userData?.following}>
 
+<div className={!loading? "hidden" : "block"}>
+ 
+      <Card totalContributions={totalContributions} username={username} rank={rank} name={userData?.name} avatar_url={userData?.avatar_url} streak={longestStreak} projects={topProjects}
+      languages={languages} followers={userData?.followers} following={userData?.following}>
     
-<div className="m-5 flex justify-center items-center w-full">
-<svg id="heatmap"></svg>
-  </div>
+        
+    <div className="m-5 flex justify-center items-center w-full">
+    <svg id="heatmap"></svg>
+      </div>
+    
+      </Card>
+     
+</div>
+ 
+      {isAnalysis && (
+        <div
+          style={{
+            position: "fixed", // Makes the overlay stay on top of the viewport
+            top: 0,
+            left: 0,
+            width: "100vw", // Covers the full width of the viewport
+            height: "100vh", // Covers the full height of the viewport
+            backgroundColor: "rgba(0, 0, 0)", // Black with transparency
+            color: "white",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 9999, // Ensure it is above all other elements
+          }}
+        >
+          <div>
+            <p className="text-white">{message}</p>
+            <div
+              style={{
+                width: "100px",
+                height: "5px",
+                backgroundColor: "white",
+                marginTop: "10px",
+                overflow: "hidden",
+                position: "relative",
+              }}
+            >
+              <div
+                style={{
+                  width: "50%",
+                  height: "100%",
+                  backgroundColor: "#1a103d",
+                  animation: "loading-bar 1s infinite",
+                  position: "absolute",
+                }}
+              ></div>
+            </div>
+          </div>
+        </div>
+      )}
 
-  </Card>
+      {/* Add animation for loading bar */}
+      <style jsx>{`
+        @keyframes loading-bar {
+          0% {
+            left: 0;
+          }
+          50% {
+            left: 50%;
+          }
+          100% {
+            left: 0;
+          }
+        }
+      `}</style>
 
  </div>
     </div>
