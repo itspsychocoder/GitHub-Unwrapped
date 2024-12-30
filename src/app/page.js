@@ -6,6 +6,7 @@ import Card from "@/components/Card"
 import { SessionProvider, signIn, signOut, useSession } from "next-auth/react";
 import { getServerSession } from "next-auth";
 import { options } from "@/app/api/auth/[...nextauth]/options";
+import HeatmapLegend from "@/components/HeatmapLegend";
 
 export default function Home() {
   const [session, setSession] = useState(null);
@@ -175,8 +176,8 @@ export default function Home() {
 
     const cellMargin = 2;
     const colorScale2 = d3.scaleThreshold()
-    .domain([0, 1, 5, 10, 20]) // Define contribution thresholds
-    .range(['#3d444d', '#9be9a8', '#40c463', '#30a14e', '#216e39']); // GitHub colors
+  .domain([0, 1, 5, 10, 20]) // Define contribution thresholds
+  .range(['#1a103d', '#3b275e', '#5c3e8b', '#8b6bc3', '#b8a3eb']);
 
     // Append squares (cells) for the heatmap
     svg.selectAll('rect')
@@ -529,6 +530,9 @@ export default function Home() {
     <div className="m-5 flex justify-center items-center w-full">
     <svg id="heatmap"></svg>
       </div>
+<div className="flex justify-center items-center">
+      <HeatmapLegend/>
+</div>
     
       </Card>
      
