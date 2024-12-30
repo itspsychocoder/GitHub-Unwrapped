@@ -103,7 +103,7 @@ export default function Home() {
   
     // Extract contribution data
 
-    console.log(data); // Debugging: Check the structure of the data
+    //console.log(data); // Debugging: Check the structure of the data
   
     const weeksData = data.data.user.contributionsCollection.contributionCalendar.weeks;
   
@@ -128,7 +128,7 @@ export default function Home() {
   
     // Calculate the longest streak
     const longestStreak = getLongestStreak(weeksData);
-    console.log(`Longest streak for ${username}: ${longestStreak} days`);
+    //console.log(`Longest streak for ${username}: ${longestStreak} days`);
 
 
     const rank = assignBadge(data.data.user.contributionsCollection.totalCommitContributions, longestStreak, topProjects);
@@ -148,8 +148,8 @@ export default function Home() {
   const createD3Heatmap = (heatmapData, xLabels, yLabels) => {
     
     const svgWidth = 1000; // Width of the SVG container
-    const svgHeight = 100; // Height of the SVG container
-    const cellSize = 10; // Size of each cell (day)
+    const svgHeight = 200; // Height of the SVG container
+    const cellSize = 13; // Size of each cell (day)
     const margin = { top: 40, right: 20, bottom: 40, left: 40 }; // Adjusted margins
   
     const width = svgWidth - margin.left - margin.right;
@@ -179,9 +179,13 @@ export default function Home() {
   // .domain([0, 1, 5, 10, 20]) // Define contribution thresholds
   // .range(['#1a103d', '#3b275e', '#5c3e8b', '#8b6bc3', '#b8a3eb']);
 
-    const colorScale2 = d3.scaleThreshold()
+  //   const colorScale2 = d3.scaleThreshold()
+  // .domain([0, 1, 5, 10, 20]) // Define contribution thresholds
+  // .range(['#0000ffff', '#0000ffaa', '#0000ff88', '#0000ff55', '#0000ff22']);
+
+  const colorScale2 = d3.scaleThreshold()
   .domain([0, 1, 5, 10, 20]) // Define contribution thresholds
-  .range(['#0000ffff', '#0000ffaa', '#0000ff88', '#0000ff55', '#0000ff22']);
+  .range(['#fff5e6', '#ffcc80', '#ff7f50', '#ff5722', '#e64a19']);
 
     // Append squares (cells) for the heatmap
     svg.selectAll('rect')
@@ -218,7 +222,7 @@ export default function Home() {
       y: i * cellSize + cellSize / 2, // Positioning along Y-axis (Days)
     }));
   
-    // Add Y axis labels (days)
+    // // Add Y axis labels (days)
     svg.selectAll('.y-label')
       .data(yLabelsWithPos)
       .enter()
@@ -280,7 +284,7 @@ export default function Home() {
     });
   
     const data = await response.json();
-    console.log(data.data);
+    //console.log(data.data);
     const totalCommits = (data.data.repository?.mainBranch?.history?.totalCount || 0) +
     (data.data.repository?.masterBranch?.history?.totalCount || 0);
    
@@ -300,7 +304,7 @@ export default function Home() {
       
       const commitCount = await fetchCommits(username, name);
 
-      console.log(`Repo ${name} has ${commitCount} commits`);
+     // console.log(`Repo ${name} has ${commitCount} commits`);
 
       repoCommitCounts.push({ repoName: name, commitCount });
     }
@@ -313,7 +317,7 @@ export default function Home() {
   async function calculateTopLanguages() {
     const repos = await fetchRepositories();
 
-    console.log(`Repos: `, repos)
+    //console.log(`Repos: `, repos)
   
     // Count occurrences of each language
     const languageCount = repos.reduce((acc, repo) => {
@@ -329,7 +333,7 @@ export default function Home() {
   
  
   
-    console.log("Top Languages:", topLanguages);
+   // console.log("Top Languages:", topLanguages);
     setLanguages(topLanguages);
 
     if (session?.accessToken === undefined) {
@@ -340,7 +344,7 @@ export default function Home() {
       setTopProjects(TopProjects);
 
     }
-    console.log("Top Projects:", topProjects);
+   // console.log("Top Projects:", topProjects);
   }
   
 
@@ -402,7 +406,7 @@ export default function Home() {
 
   const fetchGitHubData = async () => {
     setMessage(`Fetching GitHub data for ${username}...`);
-    console.log(session?.accessToken===undefined?process.env.NEXT_PUBLIC_GITHUB_TOKEN:session.accessToken)
+    // console.log(session?.accessToken===undefined?process.env.NEXT_PUBLIC_GITHUB_TOKEN:session.accessToken)
     const query = `
     query {
       user(login: "${username}") {
@@ -424,7 +428,7 @@ export default function Home() {
       }
     );
 
-    console.log(response.data);
+   // console.log(response.data);
     setTotalContributions(response.data.data.user.contributionsCollection.totalCommitContributions);
   };
 
@@ -440,7 +444,7 @@ export default function Home() {
   
     // The remaining requests can be found in the 'resources.core.remaining' field
     const remainingRequests = data.resources.graphql.remaining;
-    console.log('Remaining requests:', remainingRequests);
+    //console.log('Remaining requests:', remainingRequests);
     return remainingRequests;
   };
 
@@ -460,13 +464,13 @@ export default function Home() {
     const sessionData = await response.json();
 
     if (Object.keys(sessionData).length === 0) {
-      console.log("Session is empty.");
+      //console.log("Session is empty.");
       setSession(null);
 
     } else {
       setSession(sessionData);
       setUsername(sessionData.user.username);
-      console.log("Session exists:", session);
+      //console.log("Session exists:", session);
     }
    
   };
@@ -544,7 +548,7 @@ export default function Home() {
       languages={languages} followers={userData?.followers} following={userData?.following}>
     
         
-    <div className="m-5 flex justify-center items-center w-full">
+    <div className="w-full">
     <svg id="heatmap"></svg>
       </div>
 <div className="flex justify-center items-center">
