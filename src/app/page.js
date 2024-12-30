@@ -3,7 +3,11 @@ import axios from "axios";
 import { useEffect, useRef, useState } from "react";// Import required scales
 import * as d3 from 'd3';
 import Card from "@/components/Card"
-export default function Home() {
+import { SessionProvider, signIn, signOut, useSession } from "next-auth/react";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/pages/api/auth/[...nextauth]";
+export default async function Home() {
+  const session = await getServerSession(authOptions);
   const [username, setUsername] = useState("");
   const [chartData, setChartData] = useState(null);
   const [longestStreak, setLongestStreak] = useState(0);
@@ -427,6 +431,11 @@ export default function Home() {
     return data;
   };
   
+
+  useEffect(() => {
+    console.log(session)
+  }, [])
+  
   
   
  
@@ -453,7 +462,20 @@ export default function Home() {
       }} className="btn btn-secondary rounded-none">Submit</button>
     </div>
     {/* <button onClick={getRateLimitStatus} className="btn btn-primary">Get Rate Limit</button> */}
-    <a href="#" className="block mt-4 text-blue-300 hover:underline text-center">Click here for more</a>
+    <p>User: {session?.user?.email}</p>
+    {session ? (
+        <div>
+          <p>Welcome, {session.user.name || session.user.email}!</p>
+          <button onClick={() => signOut()}>Sign Out</button>
+        </div>
+      ) : (
+        <button onClick={() => signIn("github", { callbackUrl: "/profile" })}>Sign In with GitHub</button>
+      )}
+
+{!session?(
+  <p>You are not signed in.</p>
+  ):null
+  }
   </div>
 </div>
 
@@ -472,5 +494,6 @@ export default function Home() {
 
  </div>
     </div>
+
   )
 }
