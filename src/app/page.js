@@ -512,7 +512,10 @@ export default function Home() {
           <button onClick={() => signOut()}>Sign Out</button>
         </div>
       ) : (
-        <button onClick={() => signIn("github", { callbackUrl: "/profile" })}>Sign In with GitHub</button>
+        <>
+        <p className="my-5">Sign in with Github to get repos of 2024 along with your top projects</p>
+        <button className="bg-slate-600 px-4 py-2 text-white" onClick={() => signIn("github", { callbackUrl: "/profile" })}>Sign In with GitHub</button>
+        </>
       )}
 
 
