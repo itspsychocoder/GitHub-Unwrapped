@@ -2,7 +2,7 @@ import React, { useRef } from 'react'
 import "@/css/card.css"
 import html2canvas from 'html2canvas-pro';
 
-function Card({totalContributions, followers, following,children, username, name, avatar_url, rank, streak, projects, languages}) {
+function Card({accessToken, totalContributions, followers, following,children, username, name, avatar_url, rank, streak, projects, languages}) {
   const cardRef = useRef();
 const badge = {
   "Platinum": "🌟",
@@ -54,11 +54,16 @@ const downloadCardAsImage = async () => {
 </div>
 
     <div className="stats-container">
-  <div className="stat">
-    <h2>Repos</h2>
-    <p className='repoText'>(2024)</p>
-    <p className='statNumber' id="repos-count">{projects.length}</p>
-  </div>
+      {
+        accessToken && (
+          <div className="stat">
+          <h2>Repos</h2>
+          <p className='repoText'>(2024)</p>
+          <p className='statNumber' id="repos-count">{projects.length}</p>
+        </div>
+        )
+      }
+ 
   <div className="stat">
     <h2>Followers</h2>
     <p className='repoText'>(overall)</p>
@@ -89,7 +94,9 @@ const downloadCardAsImage = async () => {
         }
       </ul>
     </div>
-   <div className="projects">
+  {
+    accessToken && (
+      <div className="projects">
       <h2>Top Projects</h2>
       <ul>
         {
@@ -101,6 +108,8 @@ const downloadCardAsImage = async () => {
         }
       </ul>
     </div>
+    )
+  }
    
    </div>
 

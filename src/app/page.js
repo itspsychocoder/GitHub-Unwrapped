@@ -328,8 +328,14 @@ export default function Home() {
     console.log("Top Languages:", topLanguages);
     setLanguages(topLanguages);
 
-    const topProjects = await getTopProjects(repos);
-    setTopProjects(topProjects);
+    if (session?.accessToken === undefined) {
+      setTopProjects([]);
+    }
+    else {
+      let TopProjects = await getTopProjects(repos);
+      setTopProjects(TopProjects);
+
+    }
     console.log("Top Projects:", topProjects);
   }
   
@@ -447,12 +453,16 @@ export default function Home() {
   const fetchSession = async () => {
  
     const response = await fetch("/api/auth/session");
-    if (response.ok) {
-      const sessionData = await response.json();
+    const sessionData = await response.json();
+
+    if (Object.keys(sessionData).length === 0) {
+      console.log("Session is empty.");
+      setSession(null);
+
+    } else {
       setSession(sessionData);
       setUsername(sessionData.user.username);
-    } else {
-      setSession(null);
+      console.log("Session exists:", session);
     }
    
   };
@@ -498,7 +508,7 @@ export default function Home() {
   
     {session ? (
         <div>
-          <p>Welcome, {session.user.name || session.user.email}!</p>
+          <p>Welcome, {session?.user?.name || session?.user?.email}!</p>
           <button onClick={() => signOut()}>Sign Out</button>
         </div>
       ) : (
@@ -523,7 +533,7 @@ export default function Home() {
 
 <div className={!loading? "hidden" : "block"}>
  
-      <Card totalContributions={totalContributions} username={username} rank={rank} name={userData?.name} avatar_url={userData?.avatar_url} streak={longestStreak} projects={topProjects}
+      <Card accessToken={session?.accessToken} totalContributions={totalContributions} username={username} rank={rank} name={userData?.name} avatar_url={userData?.avatar_url} streak={longestStreak} projects={topProjects}
       languages={languages} followers={userData?.followers} following={userData?.following}>
     
         
