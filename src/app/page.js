@@ -389,10 +389,10 @@ export default function Home() {
       const data = await response.json();
       const repos = data.data.user.repositories.nodes;
   
-      // Filter repositories created in 2024
+      // Filter repositories created in 2025
       const filteredRepos = repos.filter(repo => {
         const createdAt = new Date(repo.createdAt);
-        return createdAt.getFullYear() === 2024; // Filter for repositories created in 2024
+        return createdAt.getFullYear() === 2025; // Filter for repositories created in 2025
       });
   
       allRepos = [...allRepos, ...filteredRepos];
@@ -521,7 +521,7 @@ export default function Home() {
         </div>
       ) : (
         <>
-        <p className="my-5">Sign in with Github to get repos of 2024 along with your top projects</p>
+        <p className="my-5">Sign in with Github to get repos of 2025 along with your top projects</p>
         <button className="bg-slate-600 px-4 py-2 text-white" onClick={() => signIn("github", { callbackUrl: "/profile" })}>Sign In with GitHub</button>
         </>
       )}
