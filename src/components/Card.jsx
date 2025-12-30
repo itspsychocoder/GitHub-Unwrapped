@@ -28,7 +28,7 @@ const downloadCardAsImage = async () => {
    <div className='flex flex-col'>
 
    <div className='flex justify-between items-center my-5'>
-    <h1 className='text-2xl font-bold'>Your Statistics for 2024</h1>
+    <h1 className='text-2xl font-bold'>Your Statistics for 2025</h1>
    <button className='btn btn-sm btn-primary' onClick={downloadCardAsImage}>
   Download</button>
    </div>
@@ -58,7 +58,7 @@ const downloadCardAsImage = async () => {
         accessToken && (
           <div className="stat">
           <h2>Repos</h2>
-          <p className='repoText'>(2024)</p>
+          <p className='repoText'>(2025)</p>
           <p className='statNumber' id="repos-count">{projects.length}</p>
         </div>
         )
